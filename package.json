@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Pagina web conectada a um banco de dados",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "Acanixz",
   "license": "ISC",
   "dependencies": {
