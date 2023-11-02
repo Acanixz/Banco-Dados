@@ -8,7 +8,8 @@ app.listen(3000, () => {
     console.log('Server is running on port 3000');
 });
 
-// Pedidos da pagina web
-app.get('/', website.W_readMain);
+app.set('views', 'src');
+app.set('view engine', 'ejs');
 
-// Pedidos do banco de dados mySQL
+// Conexão das rotas ao servidor aplicativo express
+app.use(website.router);

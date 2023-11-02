@@ -1,11 +1,23 @@
 // Página responsável por responder aos pedidos da pagina web
-// todos os métodos começam com W_
+const express = require('express');
+const router = express.Router();
 
-// Responde a GET /
-const W_readMain = (req,res) => {
-    res.status(200);
-    res.send("<p>Response received!</p>")
-    console.log("Accepted a request, nice!")
-}
+// Responde ao GET /
+router.get('/', (req, res) => {
+    res.status(200).render('website/pages/index')
+})
 
-module.exports = {W_readMain};
+// Responde a qualquer outra página não-existente
+router.get('/*', (req, res) => {
+    res.status(404).render('website/pages/404')
+})
+
+// Responde a qualquer outro pedido não programado
+router.all('/*', (req, res) => {
+    const requestMethod = req.method;
+    res.status(405).render('website/pages/405', {requestMethod})
+})
+
+module.exports = {
+    router
+};
