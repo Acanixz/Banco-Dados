@@ -91,17 +91,306 @@ router.get('/api/data', (req, res) => {
     );
 });
 
-// Define a route to add data to the database
-router.post('/api/data', (req, res) => {
-  // Assuming you have data in the request body
-  const newData = req.body;
+// PUT request para database
+router.put('/api/data/:id', (req, res) => {
+  const appID = req.params.id;
+  const appData = req.body;
 
-  pool.query('INSERT INTO your_table_name SET ?', newData, (error, results) => {
+  console.log(appID)
+  console.log(appData)
+  pool.query(`SELECT * FROM steamdb.jogo WHERE idJogo = ${appID}`, (error, results) => {
     if (error) {
       console.error(error);
-      res.status(500).send('Internal Server Error');
+      res.status(500).json({ message: 'Internal Server Error' });
+      return;
+    }
+
+    // App existente, request irá atualizar alvo
+    if (results.length > 0) {
+      const promises = [];
+      // Atualiza informações principais
+      if (appData.hasOwnProperty("main")){
+        promises.push(pool.query(`UPDATE jogo SET ? WHERE idJogo = ?`, [appData.main, appID], (updateError) => {
+          if (updateError) {
+            console.error(updateError);
+            failed = true;
+          }
+        }));
+      }
+
+      // Atualiza as avaliações
+      if (appData.hasOwnProperty("avaliacao")){
+        const updateValues = appData.avaliacao;
+        const updateColumns = Object.keys(updateValues).map(column => `${column} = ?`).join(', ');
+
+        const query = `UPDATE avaliacao SET ${updateColumns} WHERE avaliacao.idAvaliacao IN (SELECT jogo.avaliacao_idAvaliacao FROM jogo WHERE idJogo = ?);`;
+
+        const values = [...Object.values(updateValues), parseInt(appID, 10)];
+
+        promises.push(pool.query(query, values, (updateError) => {
+            if (updateError) {
+                console.error(updateError);
+                failed = true;
+            }
+        }));
+      }
+
+      // Atualiza as plataformas suportadas
+      if (appData.hasOwnProperty("plataforma")){
+        const updateValues = appData.plataforma;
+        const updateColumns = Object.keys(updateValues).map(column => `${column} = ?`).join(', ');
+
+        const query = `UPDATE plataforma SET ${updateColumns} WHERE plataforma.idPlataforma IN (SELECT jogo.Plataforma_idPlataforma FROM jogo WHERE idJogo = ?);`;
+
+        const values = [...Object.values(updateValues), parseInt(appID, 10)];
+
+        promises.push(pool.query(query, values, (updateError) => {
+            if (updateError) {
+                console.error(updateError);
+                failed = true;
+            }
+        }));
+      }
+
+      if (appData.hasOwnProperty("recurso")){
+        const updateValues = appData.recurso;
+        const updateColumns = Object.keys(updateValues).map(column => `${column} = ?`).join(', ');
+
+        const query = `UPDATE recurso SET ${updateColumns} WHERE recurso.idRecurso IN (SELECT jogo.Recurso_idRecurso FROM jogo WHERE idJogo = ?);`;
+
+        const values = [...Object.values(updateValues), parseInt(appID, 10)];
+
+        promises.push(pool.query(query, values, (updateError) => {
+            if (updateError) {
+                console.error(updateError);
+                failed = true;
+            }
+        }));
+      }
+
+      // Atualiza a categoria do jogo
+      if (appData.hasOwnProperty("categoria")){
+        // Adiciona
+        if (appData.categoria.hasOwnProperty("ADD")){
+          Object.values(appData.categoria.ADD).forEach(idCategoria => {
+            const insertQuery = pool.query(
+              'INSERT INTO jogo_has_categoria (Jogo_idJogo, Categoria_idCategoria) VALUES (?, ?)',
+              [appID, idCategoria],
+              (insertError) => {
+                if (insertError) {
+                  console.error(insertError);
+                  failed = true;
+                }
+              }
+            );
+            promises.push(insertQuery);
+          });
+        }
+
+        // Remove
+        if (appData.categoria.hasOwnProperty("REMOVE")) {
+          Object.values(appData.categoria.REMOVE).forEach(idCategoria => {
+            const insertQuery = pool.query(
+              'DELETE FROM jogo_has_categoria WHERE Jogo_idJogo = ? AND Categoria_idCategoria = ?',
+              [appID, idCategoria],
+              (insertError) => {
+                if (insertError) {
+                  console.error(insertError);
+                  failed = true;
+                }
+              }
+            );
+            promises.push(insertQuery);
+          });
+        }
+      }
+
+      // Atualiza o genero do jogo
+      if (appData.hasOwnProperty("genero")){
+        // Adiciona
+        if (appData.genero.hasOwnProperty("ADD")){
+          Object.values(appData.genero.ADD).forEach(idGenero => {
+            const insertQuery = pool.query(
+              'INSERT INTO jogo_has_genero (Jogo_idJogo, Genero_idGenero) VALUES (?, ?)',
+              [appID, idGenero],
+              (insertError) => {
+                if (insertError) {
+                  console.error(insertError);
+                  failed = true;
+                }
+              }
+            );
+            promises.push(insertQuery);
+          });
+        }
+
+        // Remove
+        if (appData.genero.hasOwnProperty("REMOVE")) {
+          Object.values(appData.genero.REMOVE).forEach(idGenero => {
+            const insertQuery = pool.query(
+              'DELETE FROM jogo_has_genero WHERE Jogo_idJogo = ? AND Genero_idGenero = ?',
+              [appID, idGenero],
+              (insertError) => {
+                if (insertError) {
+                  console.error(insertError);
+                  failed = true;
+                }
+              }
+            );
+            promises.push(insertQuery);
+          });
+        }
+      }
+
+      // Atualiza a linguagem do jogo
+      if (appData.hasOwnProperty("linguagem")){
+        // Adiciona
+        if (appData.linguagem.hasOwnProperty("ADD")){
+          Object.values(appData.linguagem.ADD).forEach(idLinguagem => {
+            const insertQuery = pool.query(
+              'INSERT INTO jogo_has_linguagem (Jogo_idJogo, Linguagem_idLinguagem) VALUES (?, ?)',
+              [appID, idLinguagem],
+              (insertError) => {
+                if (insertError) {
+                  console.error(insertError);
+                  failed = true;
+                }
+              }
+            );
+            promises.push(insertQuery);
+          });
+        }
+
+        // Remove
+        if (appData.linguagem.hasOwnProperty("REMOVE")) {
+          Object.values(appData.linguagem.REMOVE).forEach(idLinguagem => {
+            const insertQuery = pool.query(
+              'DELETE FROM jogo_has_linguagem WHERE Jogo_idJogo = ? AND Linguagem_idLinguagem = ?',
+              [appID, idLinguagem],
+              (insertError) => {
+                if (insertError) {
+                  console.error(insertError);
+                  failed = true;
+                }
+              }
+            );
+            promises.push(insertQuery);
+          });
+        }
+      }
+
+      Promise.all(promises)
+      .then(() => {
+        // Todas as queries funcionaram
+        res.status(200).json({ message: 'App updated successfully.' });
+      })
+      .catch((updateError) => {
+        // Alguma query falhou!
+        console.error(updateError);
+        res.status(500).json({ message: 'Internal Server Error' });
+      });
+    } else { // App inexistente, request irá criar app
+      pool.query(`INSERT INTO avaliacao (metacritic, quantReviews, quantRecomendacoes) VALUES (${appData.hasOwnProperty("avaliacao") ? appData.avaliacao : "0,0,0"}) `, (insertError, results) => {
+        if (insertError){
+          console.log(insertError);
+          res.status(500).json({ message: 'Could not create avaliação object' });
+        } else {
+          console.log(`avaliação com id ${results.insertId} criada com sucesso`);
+          let avaliacaoID = results.insertId;
+
+          if (avaliacaoID == -1){
+            return;
+          }
+          pool.query(`INSERT INTO plataforma (Windows, Linux, macOS) VALUES (${appData.hasOwnProperty("plataforma") ? appData.plataforma : "0,0,0"})`, (insertError, results) => {
+            if (insertError){
+              console.log(insertError);
+              res.status(500).json({ message: 'Could not create plataforma object' });
+            } else {
+              console.log(`plataforma com id ${results.insertId} criada com sucesso`);
+              let plataformaID = results.insertId;
+    
+              if (plataformaID == -1){
+                return;
+              }
+              
+              pool.query(`INSERT INTO recurso (quantDLCs, quantDemos, quantConquistas) VALUES (${appData.hasOwnProperty("recurso") ? appData.recurso : "0,0,0"})`, (insertError, results) => {
+                if (insertError){
+                  console.log(insertError);
+                  res.status(500).json({ message: 'Could not create recurso object' });
+                } else {
+                  console.log(`recurso com id ${results.insertId} criado com sucesso`);
+                  let recursoID = results.insertId;
+        
+                  if (recursoID == -1){
+                    return;
+                  }
+                  
+                  pool.query('INSERT INTO distribuicao (numProprietariosSteam, aproxJogadoresTotais) VALUES (0,0)', (insertError, results) => {
+                    if (insertError){
+                      console.log(insertError);
+                      res.status(500).json({ message: 'Could not create distribuição object' });
+                    } else {
+                      console.log(`avaliação com id ${results.insertId} criada com sucesso`);
+                      let distribuicaoID = results.insertId;
+            
+                      if (distribuicaoID == -1){
+                        return;
+                      }
+                      
+                      pool.query(`INSERT INTO jogo SET ? , Avaliacao_idAvaliacao = ${avaliacaoID}, Plataforma_idPlataforma = ${plataformaID}, Distribuicao_idDistribuicao = ${distribuicaoID}, Recurso_idRecurso = ${recursoID}`, appData.main, (insertError) => {
+                        if (insertError) {
+                          console.error(insertError);
+                          res.status(500).json({ message: 'Internal Server Error' });
+                        } else {
+                          
+
+                          res.status(201).json({ message: `App created successfully with ID: ${results.insertId}` });
+                        }
+                      });
+                    }
+                  })
+                }
+              })
+            }
+          })
+        }
+      })
+    }
+  })
+})
+
+
+router.put('/TEST/api/data/:id', (req, res) => {
+  const userId = req.params.id;
+  const userData = req.body;
+
+  // Check if the user with the given ID exists
+  pool.query('SELECT * FROM users WHERE id = ?', [userId], (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
     } else {
-      res.status(201).send('Data added successfully');
+      if (results.length > 0) {
+        // User exists, perform an UPDATE query
+        pool.query('UPDATE users SET ? WHERE id = ?', [userData, userId], (updateError) => {
+          if (updateError) {
+            console.error(updateError);
+            res.status(500).json({ message: 'Internal Server Error' });
+          } else {
+            res.status(200).json({ message: 'User updated successfully.' });
+          }
+        });
+      } else {
+        // User doesn't exist, perform an INSERT query
+        pool.query('INSERT INTO users SET ?', userData, (insertError) => {
+          if (insertError) {
+            console.error(insertError);
+            res.status(500).json({ message: 'Internal Server Error' });
+          } else {
+            res.status(201).json({ message: 'User created successfully.' });
+          }
+        });
+      }
     }
   });
 });

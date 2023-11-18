@@ -13,6 +13,7 @@ app.listen(PORT, () => {
 app.set('views', 'src');
 app.set('view engine', 'ejs');
 
+app.use(express.json());
 // Conexão das rotas ao servidor aplicativo express
 // OBS: website deve ser o ultimo router posicionado
 //      pois nele contém os erros 404 e 405 no fim,
