@@ -105,9 +105,9 @@ router.put('/api/data/:id', (req, res) => {
       return;
     }
 
+    const promises = [];
     // App existente, request irá atualizar alvo
     if (results.length > 0) {
-      const promises = [];
       // Atualiza informações principais
       if (appData.hasOwnProperty("main")){
         promises.push(pool.query(`UPDATE jogo SET ? WHERE idJogo = ?`, [appData.main, appID], (updateError) => {
@@ -290,7 +290,8 @@ router.put('/api/data/:id', (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
       });
     } else { // App inexistente, request irá criar app
-      pool.query(`INSERT INTO avaliacao (metacritic, quantReviews, quantRecomendacoes) VALUES (${appData.hasOwnProperty("avaliacao") ? appData.avaliacao : "0,0,0"}) `, (insertError, results) => {
+      const { metacritic = 0, quantReviews = 0, quantRecomendacoes = 0 } = appData.avaliacao;
+      pool.query(`INSERT INTO avaliacao (metacritic, quantReviews, quantRecomendacoes) VALUES (${metacritic}, ${quantReviews}, ${quantRecomendacoes}) `, (insertError, results) => {
         if (insertError){
           console.log(insertError);
           res.status(500).json({ message: 'Could not create avaliação object' });
@@ -301,7 +302,8 @@ router.put('/api/data/:id', (req, res) => {
           if (avaliacaoID == -1){
             return;
           }
-          pool.query(`INSERT INTO plataforma (Windows, Linux, macOS) VALUES (${appData.hasOwnProperty("plataforma") ? appData.plataforma : "0,0,0"})`, (insertError, results) => {
+          const {Windows = 0, Linux = 0, macOS = 0} = appData.plataforma;
+          pool.query(`INSERT INTO plataforma (Windows, Linux, macOS) VALUES (${Windows}, ${Linux}, ${macOS})`, (insertError, results) => {
             if (insertError){
               console.log(insertError);
               res.status(500).json({ message: 'Could not create plataforma object' });
@@ -313,7 +315,8 @@ router.put('/api/data/:id', (req, res) => {
                 return;
               }
               
-              pool.query(`INSERT INTO recurso (quantDLCs, quantDemos, quantConquistas) VALUES (${appData.hasOwnProperty("recurso") ? appData.recurso : "0,0,0"})`, (insertError, results) => {
+              const {quantDLCs = 0, quantDemos = 0, quantConquistas = 0} = appData.recurso;
+              pool.query(`INSERT INTO recurso (quantDLCs, quantDemos, quantConquistas) VALUES (${quantDLCs}, ${quantDemos}, ${quantConquistas})`, (insertError, results) => {
                 if (insertError){
                   console.log(insertError);
                   res.status(500).json({ message: 'Could not create recurso object' });
@@ -337,14 +340,83 @@ router.put('/api/data/:id', (req, res) => {
                         return;
                       }
                       
-                      pool.query(`INSERT INTO jogo SET ? , Avaliacao_idAvaliacao = ${avaliacaoID}, Plataforma_idPlataforma = ${plataformaID}, Distribuicao_idDistribuicao = ${distribuicaoID}, Recurso_idRecurso = ${recursoID}`, appData.main, (insertError) => {
+                      pool.query(`INSERT INTO jogo SET ? , Avaliacao_idAvaliacao = ${avaliacaoID}, Plataforma_idPlataforma = ${plataformaID}, Distribuicao_idDistribuicao = ${distribuicaoID}, Recurso_idRecurso = ${recursoID}`, appData.main, (insertError, results) => {
                         if (insertError) {
                           console.error(insertError);
                           res.status(500).json({ message: 'Internal Server Error' });
                         } else {
-                          
+                          let createdAppID = results.insertId;
+                          console.log(`App com id ${createdAppID} criado com sucesso`)
+                          // Adiciona as categorias do jogo
+                          if (appData.hasOwnProperty("categoria")){
+                            // Adiciona
+                            if (appData.categoria.hasOwnProperty("ADD")){
+                              Object.values(appData.categoria.ADD).forEach(idCategoria => {
+                                const insertQuery = pool.query(
+                                  'INSERT INTO jogo_has_categoria (Jogo_idJogo, Categoria_idCategoria) VALUES (?, ?)',
+                                  [createdAppID, idCategoria],
+                                  (insertError) => {
+                                    if (insertError) {
+                                      console.error(insertError);
+                                      failed = true;
+                                    }
+                                  }
+                                );
+                                promises.push(insertQuery);
+                              });
+                            }
+                          }
 
-                          res.status(201).json({ message: `App created successfully with ID: ${results.insertId}` });
+                          // Adiciona os generos do jogo
+                          if (appData.hasOwnProperty("genero")){
+                            // Adiciona
+                            if (appData.genero.hasOwnProperty("ADD")){
+                              Object.values(appData.genero.ADD).forEach(idGenero => {
+                                const insertQuery = pool.query(
+                                  'INSERT INTO jogo_has_genero (Jogo_idJogo, Genero_idGenero) VALUES (?, ?)',
+                                  [createdAppID, idGenero],
+                                  (insertError) => {
+                                    if (insertError) {
+                                      console.error(insertError);
+                                      failed = true;
+                                    }
+                                  }
+                                );
+                                promises.push(insertQuery);
+                              });
+                            }
+                          }
+
+                          // Adiciona as linguagens iniciais do jogo
+                          if (appData.hasOwnProperty("linguagem")){
+                            // Adiciona
+                            if (appData.linguagem.hasOwnProperty("ADD")){
+                              Object.values(appData.linguagem.ADD).forEach(idLinguagem => {
+                                const insertQuery = pool.query(
+                                  'INSERT INTO jogo_has_linguagem (Jogo_idJogo, Linguagem_idLinguagem) VALUES (?, ?)',
+                                  [createdAppID, idLinguagem],
+                                  (insertError) => {
+                                    if (insertError) {
+                                      console.error(insertError);
+                                      failed = true;
+                                    }
+                                  }
+                                );
+                                promises.push(insertQuery);
+                              });
+                            }
+                          }
+
+                          Promise.all(promises)
+                          .then(() => {
+                            // Todas as queries funcionaram
+                            res.status(201).json({ message: `App created successfully with ID: ${createdAppID}` });
+                          })
+                          .catch((updateError) => {
+                            // Alguma query falhou!
+                            console.error(updateError);
+                            res.status(500).json({ message: 'Internal Server Error' });
+                          });
                         }
                       });
                     }
