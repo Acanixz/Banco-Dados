@@ -22,6 +22,7 @@ router.get('/api/data', (req, res) => {
     const {
         page = 1, // Pagina atual
         pageSize = 50, // Quantidade de jogos por página
+        id = "", // ID do jogo
         name = "", // Nome do jogo (ou aproximado)
         categories = [], // Categorias (Multiplayer, Steam Achievements, etc)
         genres = [] // Generos (Action, Adventure, etc)
@@ -53,12 +54,15 @@ router.get('/api/data', (req, res) => {
     WHERE 1=1
     `
 
+    if (id != ""){
+      currentRequest += `AND (idJogo = ${id})`;
+    }
     // Se há categorias, verifica se é um array ou um único valor
     // Se for array, junta tudo com OR conditions
     // Se for string única, busca por aquela em especifico
     if (categories && categories.length > 0){
         let condicoesCategoria = Array.isArray(categories)
-        ? categories.map(category => `categoria.nomeCategoria = '${category}'`).join(' OR ')
+        ? categories.map(category => `categoria.nomeCategoria = '${category}'`).join(' AND ')
         : `categoria.nomeCategoria = '${categories}'`;
 
         currentRequest += `AND (${condicoesCategoria})`
@@ -67,7 +71,7 @@ router.get('/api/data', (req, res) => {
     // Mesmo comportamento anterior, só que para genero
     if (genres && genres.length > 0){
         let condicoesGenero = Array.isArray(genres)
-        ? genres.map(genre => `genero.nomeGenero = '${genre}'`).join(' OR ')
+        ? genres.map(genre => `genero.nomeGenero = '${genre}'`).join(' AND ')
         : `genero.nomeGenero = '${genres}'`;
 
         currentRequest += `AND (${condicoesGenero})`
@@ -90,6 +94,157 @@ router.get('/api/data', (req, res) => {
         }
     );
 });
+
+router.get('/api/data/:id', (req, res) => {
+  const appID = req.params.id;
+
+  pool.query(`SELECT 
+  idJogo,
+  nomeJogo,
+  dataLancamento,
+  faixaEtaria,
+  preco,
+  descricao,
+  metacritic,
+  quantReviews,
+  quantRecomendacoes,
+  Windows,
+  Linux,
+  macOS,
+  numProprietariosSteam,
+  aproxJogadoresTotais,
+  quantDLCs,
+  quantDemos,
+  quantConquistas
+FROM
+  steamdb.jogo
+      INNER JOIN
+  avaliacao ON (jogo.Avaliacao_idAvaliacao = avaliacao.idAvaliacao)
+      INNER JOIN
+  plataforma ON (jogo.Plataforma_idPlataforma = plataforma.idPlataforma)
+      INNER JOIN
+  distribuicao ON (jogo.Distribuicao_idDistribuicao = distribuicao.idDistribuicao)
+      INNER JOIN
+  recurso ON (jogo.Recurso_idRecurso = recurso.idRecurso)
+  WHERE idJogo = ?`, appID, (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+      return;
+    }
+    res.status(200).json(results);
+  })
+})
+
+router.get('/api/data/:id/categories', (req, res) => {
+  const appID = req.params.id;
+
+  pool.query(`SELECT
+  nomeCategoria
+FROM
+  steamdb.jogo
+      LEFT JOIN
+  jogo_has_categoria ON (jogo.idJogo = jogo_has_categoria.Jogo_idJogo)
+      LEFT JOIN
+  categoria ON (jogo_has_categoria.Categoria_idCategoria = categoria.idCategoria)
+  WHERE idJogo = ?`, appID, (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+      return;
+    }
+    res.status(200).json(results);
+  })
+})
+
+router.get('/api/data/:id/genres', (req, res) => {
+  const appID = req.params.id;
+
+  pool.query(`SELECT 
+  nomeGenero
+FROM
+  steamdb.jogo
+      LEFT JOIN
+  jogo_has_genero ON (jogo.idJogo = jogo_has_genero.Jogo_idJogo)
+      LEFT JOIN
+  genero ON (jogo_has_genero.Genero_idGenero = genero.idGenero)
+  WHERE idJogo = ?`, appID, (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+      return;
+    }
+    res.status(200).json(results);
+  })
+})
+
+router.delete('/api/data/:id', (req, res) => {
+  const appID = req.params.id;
+
+  pool.query('DELETE FROM jogo_has_categoria WHERE Jogo_idJogo = ?;', appID, (error, results) =>{
+    if (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error'});
+      return;
+    }
+    pool.query('DELETE FROM jogo_has_genero WHERE Jogo_idJogo = ?;', appID, (error, results) =>{
+      if (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error'});
+        return;
+      }
+      pool.query('DELETE FROM jogo_has_linguagem WHERE Jogo_idJogo = ?;', appID, (error, results) =>{
+        if (error) {
+          console.error(error);
+          res.status(500).json({ message: 'Internal Server Error'});
+          return;
+        }
+        pool.query(`DELETE FROM steamdb.jogo
+        WHERE idJogo = ?;`, appID, (error, results) => {
+          if (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Internal Server Error'});
+            return;
+          }
+          res.status(200).json({ message: 'Game deleted successfully'});
+        })
+      })
+    })
+  })
+})
+
+router.get('/api/languages', (req,res) => {
+  pool.query('SELECT * FROM linguagem', (error, results) =>{
+    if (error){
+      console.error(error);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(results);
+    }
+  })
+})
+
+router.get('/api/genres', (req,res) => {
+  pool.query('SELECT * FROM genero', (error, results) =>{
+    if (error){
+      console.error(error);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(results);
+    }
+  })
+})
+
+router.get('/api/categories', (req, res) => {
+  pool.query('SELECT * FROM categoria', (error, results) =>{
+    if (error){
+      console.error(error);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(results);
+    }
+  })
+})
 
 // PUT request para database
 router.put('/api/data/:id', (req, res) => {
@@ -430,42 +585,6 @@ router.put('/api/data/:id', (req, res) => {
     }
   })
 })
-
-
-router.put('/TEST/api/data/:id', (req, res) => {
-  const userId = req.params.id;
-  const userData = req.body;
-
-  // Check if the user with the given ID exists
-  pool.query('SELECT * FROM users WHERE id = ?', [userId], (error, results) => {
-    if (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal Server Error' });
-    } else {
-      if (results.length > 0) {
-        // User exists, perform an UPDATE query
-        pool.query('UPDATE users SET ? WHERE id = ?', [userData, userId], (updateError) => {
-          if (updateError) {
-            console.error(updateError);
-            res.status(500).json({ message: 'Internal Server Error' });
-          } else {
-            res.status(200).json({ message: 'User updated successfully.' });
-          }
-        });
-      } else {
-        // User doesn't exist, perform an INSERT query
-        pool.query('INSERT INTO users SET ?', userData, (insertError) => {
-          if (insertError) {
-            console.error(insertError);
-            res.status(500).json({ message: 'Internal Server Error' });
-          } else {
-            res.status(201).json({ message: 'User created successfully.' });
-          }
-        });
-      }
-    }
-  });
-});
 
 module.exports = {
     router
