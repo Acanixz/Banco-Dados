@@ -1,0 +1,29 @@
+#addGameContainer {
+    max-height: 90%;
+    overflow: scroll;
+}
+
+#addGameContainer * {
+    margin-top: 10px;
+}
+
+#addGameBtn {
+    display: inline;
+    margin-top: 25px;
+}
+
+#reset{
+    display: inline;
+}
+
+#getDataBtn{
+    display: inline;
+}
+
+#genreContainer, #categoryContainer{
+    background-color: black;
+}
+
+#addGameContainer{
+    width: 60%;
+}

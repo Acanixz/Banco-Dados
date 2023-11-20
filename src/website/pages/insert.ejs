@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SteamDB</title>
+    <link rel="stylesheet" type="text/css" href="/css/steam.css">
+    <link rel="stylesheet" type="text/css" href="/css/insert.css">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap">
+</head>
+<body>
+    <h1 class="title">
+        <img width="32" height="32" src="svg/steam.svg" alt="Steam logo">
+        <a style="vertical-align: super;" href="/">SteamDB - Add Game</a>
+    </h1>
+    <!-- Form for adding a new game -->
+    <form id="addGameContainer" class="container" onsubmit="addGame(event)">
+        <h2 class="title">Add New Game</h2>
+        <div class="formInput">
+            <label for="name">Name: </label>
+            <input type="text" name="name" id="nameInput" required>
+        </div>
+
+        <div class="formInput">
+            <label for="description">Description: </label>
+            <textarea name="description" id="descriptionInput" rows="4" cols="50" required></textarea>
+        </div>
+
+        <div class="formInput">
+            <label for="price">Price: $</label>
+            <input type="number" name="price" id="priceInput" min="0" step="0.01" value="0" required>
+        </div>
+
+        <div class="formInput">
+            <label for="age">Min Age: </label>
+            <input type="number" name="age" id="ageInput" min="0" step="1" value="0" required>
+        </div>
+
+        <label for="dateInput">Release Date:</label>
+        <input type="date" name="dateInput" id="dateInput">
+
+        <div class="horizontalContainer">
+            <div id="genreContainer" class="innerContainer">
+                <h2 class="title">Gender</h2>
+            </div>
+    
+            <div id="categoryContainer" class="innerContainer">
+                <h2 class="title">Category</h2>
+            </div>
+        </div>
+        
+        <div id="platformContainer" class="innerContainer">
+            <h2 class="title">Platform</h2>
+            <input type="checkbox" name="windows" id="windowsCheckbox">
+            <label for="windowsCheckbox">Windows</label>
+            <input type="checkbox" name="linux" id="linuxCheckbox">
+            <label for="linuxCheckbox">Linux</label>
+            <input type="checkbox" name="macOS" id="macOSCheckbox">
+            <label for="macOSCheckbox">macOS</label>
+        </div>
+
+        <div id="reviewsContainer" class="innerContainer">
+            <h2 class="title">External Reviews</h2>
+            <div class="formInput">
+                <label for="metacritic">Metacritic: </label>
+                <input type="number" name="metacritic" id="metacriticInput" min="0" step="1" max="100" value="0" required>
+            </div>
+        </div>
+
+        <div id="resourcesContainer" class="innerContainer">
+            <h2 class="title">Game Resources</h2>
+            <div class="formInput">
+                <label for="DLC">DLC count: </label>
+                <input type="number" name="DLC" id="DLCInput" min="0" step="1" value="0" required>
+            </div>
+            <div class="formInput">
+                <label for="demo">Demo count: </label>
+                <input type="number" name="demo" id="demoInput" min="0" step="1" value="0" required>
+            </div>
+            <div class="formInput">
+                <label for="achievement">Achievement count: </label>
+                <input type="number" name="achievement" id="achievementInput" min="0" step="1" value="0" required>
+            </div>
+        </div>
+
+        <br>
+        <button id="addGameBtn" class="button" type="submit" onclick="createGame(event)">Add Game</button>
+        <button id="reset" class="button" onclick="resetForm()">Reset Form</button>
+    </form>
+
+    <script src="/javascript/common.js"></script>
+    <script src="/javascript/insert.js"></script>
+</body>
+</html>
