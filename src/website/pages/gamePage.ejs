@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SteamDB</title>
+    <link rel="stylesheet" type="text/css" href="/css/steam.css">
+    <link rel="stylesheet" type="text/css" href="/css/gamePage.css">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap">
+</head>
+<body>
+    <h1 class="title">
+        <img width="32" height="32" src="../svg/steam.svg" alt="Steam logo">
+        <a style="vertical-align: super;" href="/">SteamDB</a>
+    </h1>
+
+    <!--[{
+        "idJogo":1,
+        "nomeJogo":"Counter-Strike 2",
+        "dataLancamento":"2023-09-11T03:00:00.000Z",
+        "faixaEtaria":18,"preco":20.99,
+        "descricao":"Descrição atualizada do counter strike 2",
+        "metacritic":88,
+        "quantReviews":127873,
+        "quantRecomendacoes":124534,
+        "Windows":1,"Linux":1,
+        "macOS":1,
+        "numProprietariosSteam":13033334,
+        "aproxJogadoresTotais":9140731,
+        "quantDLCs":2,
+        "quantDemos":1,
+        "quantConquistas":85}]
+    -->
+    <div id="gamePageContainer" class="container">
+        <h2 class="title" id="nomeJogo">Loading..</h2>
+        <p>Release date: <span id="dataLancamento"></span></p>
+        <p>Age Rating: <span id="faixaEtaria"></span></p>
+        <p>Description: <span id="descricao"></span></p>
+        <h3 class="title">Reviews</h3>
+        <p>Metacritic: <span id="metacritic"></span></p>
+        <p>Review Count: <span id="quantReviews"></span></p>
+        <p>Positive Reviews: <span id="quantRecomendacoes"></span></p>
+
+        <h3 class="title">Platform support</h3>
+        <div style="display: inline;" class="osIcons">
+            
+            <img id="Windows" style="filter: invert(1)" src="../svg/windows.svg" width="16" height="16" alt="Windows support">
+            <img id="Linux" style="filter: invert(1)" src="../svg/linux.svg" width="16" height="16" alt="Linux support">
+            <img id="macOS" style="filter: invert(1)" src="../svg/macOS.svg" width="16" height="16" alt="macOS support">
+        </div>
+
+        <h3 class="title">Additional content</h3>
+        <p>DLCs: <span id="quantDLCs"></span></p>
+        <p>Demos: <span id="quantDemos"></span></p>
+        <p>Achievements: <span id="quantConquistas"></span></p>
+
+        <div class="horizontalContainer">
+            <div id="genreContainer" class="innerContainer">
+                <h2 class="title">Gender</h2>
+            </div>
+    
+            <div id="categoryContainer" class="innerContainer">
+                <h2 class="title">Category</h2>
+            </div>
+        </div>
+    </div>
+
+    <script src="/javascript/common.js"></script>
+    <script src="/javascript/gamePage.js"></script>
+</body>
+</html>

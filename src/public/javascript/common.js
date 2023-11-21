@@ -3,7 +3,7 @@ function formatDate(date) {
     return isoString.split('T')[0];
 }
 
-function createGenres() {
+function createGenres(disabledElement = false) {
     fetch('http://localhost:3000/api/genres')
         .then(response => response.json())
         .then(data => {
@@ -23,6 +23,7 @@ function createGenres() {
                 input.setAttribute('name', genre.nomeGenero);
                 input.setAttribute('database_id', genre.idGenero);
                 input.setAttribute('id', `gen_${genre.idGenero}`);
+                input.disabled = disabledElement
 
                 genreDiv.appendChild(label);
                 genreDiv.appendChild(input);
@@ -35,7 +36,7 @@ function createGenres() {
         });
 }
 
-function createCategories() {
+function createCategories(disabledElement = true) {
     fetch('http://localhost:3000/api/categories')
         .then(response => response.json())
         .then(data => {
@@ -55,6 +56,7 @@ function createCategories() {
                 input.setAttribute('name', category.nomeCategoria);
                 input.setAttribute('database_id', category.idCategoria);
                 input.setAttribute('id', `cat_${category.idCategoria}`);
+                input.disabled = disabledElement
 
                 categoryDiv.appendChild(label);
                 categoryDiv.appendChild(input);

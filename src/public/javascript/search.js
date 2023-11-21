@@ -59,9 +59,6 @@ function search(eventParams = null) {
     clearSearchResults();
     let requestURL = "http://localhost:3000/api/data?hasParams=true"
 
-    // TODO: Adicionar busca por ID na API
-    // TODO: Adicionar sistema de remoção da API
-
     const targetID = document.getElementById("IDInput").value;
 
     console.log(targetID)

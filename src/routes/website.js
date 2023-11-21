@@ -24,7 +24,7 @@ router.get('/delete', (req, res) => {
 })
 
 router.get('/games/:id', (req, res) => {
-    res.status(404).send("A pagina do jogo ainda não existe!")
+    res.status(200).render('website/pages/gamePage')
 })
 
 // Responde a qualquer outra página não-existente

@@ -1,0 +1,15 @@
+#gamePageContainer{
+    width: 60%;
+    overflow: auto;
+    max-height: 450px;
+}
+
+.osIcons {
+    width: 78px;
+}
+
+.osIcons > * {
+    margin-right: 10px;
+    width: 64px;
+    height: 64px;
+}
