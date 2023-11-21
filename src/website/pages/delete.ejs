@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SteamDB</title>
+    <link rel="stylesheet" type="text/css" href="/css/steam.css">
+    <link rel="stylesheet" type="text/css" href="/css/delete.css">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap">
+</head>
+<body>
+    <h1 class="title">
+        <img width="32" height="32" src="svg/steam.svg" alt="Steam logo">
+        <a style="vertical-align: super;" href="/">SteamDB - Delete Game</a>
+    </h1>
+    
+    <form id="deleteGameContainer" class="container" onsubmit="deleteGame(event)">
+        <h2 class="title">Delete game</h2>
+
+        <div class="formInput">
+            <label for="gameID">Game ID: </label>
+            <input type="number" name="gameID" id="gameIDInput" min="0" step="1" required>
+        </div>
+
+        <br>
+        <button id="deleteGameBtn" class="button" type="submit">Delete Game</button>
+    </form>
+
+    <script src="/javascript/common.js"></script>
+    <script src="/javascript/delete.js"></script>
+</body>
+</html>

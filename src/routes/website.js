@@ -7,6 +7,26 @@ router.get('/', (req, res) => {
     res.status(200).render('website/pages/index')
 })
 
+router.get('/search', (req, res) => {
+    res.status(200).render('website/pages/search')
+})
+
+router.get('/insert', (req,res) => {
+    res.status(200).render('website/pages/insert')
+})
+
+router.get('/update', (req, res) => {
+    res.status(200).render('website/pages/update')
+})
+
+router.get('/delete', (req, res) => {
+    res.status(200).render('website/pages/delete')
+})
+
+router.get('/games/:id', (req, res) => {
+    res.status(404).send("A pagina do jogo ainda não existe!")
+})
+
 // Responde a qualquer outra página não-existente
 router.get('/*', (req, res) => {
     res.status(404).render('website/pages/404')
