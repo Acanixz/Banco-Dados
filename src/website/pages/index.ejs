@@ -1,12 +1,25 @@
+<!-- views/index.ejs -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banco de dados M3 - Index</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SteamDB</title>
+  <link rel="stylesheet" type="text/css" href="/css/steam.css">
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap">
 </head>
 <body>
-    <h1>Bem vindo a pagina inicial do banco de dados!</h1>
-    <h2>Se você ta lendo isso, provavelmente funcionou a ideia</h2>
+  <h1 class="title">SteamDB</h1>
+  <div class="container">
+    <a href="/search" class="button">Search for a Game</a>
+
+    <a href="/insert" class="button">Insert a New Game</a>
+
+    <a href="/update" class="button">Update an Existing Game</a>
+
+    <a href="/delete" class="button">Delete Game</a>
+  </div>
+
 </body>
 </html>
