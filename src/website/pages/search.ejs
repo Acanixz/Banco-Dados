@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SteamDB</title>
+    <link rel="stylesheet" type="text/css" href="/css/steam.css">
+    <link rel="stylesheet" type="text/css" href="/css/search.css">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap">
+</head>
+<body>
+    <h1 class="title">
+        <img width="32" height="32" src="svg/steam.svg" alt="Steam logo">
+        <a style="vertical-align: super;" href="/">SteamDB - Games list</a>
+    </h1>
+    <!--Form de busca-->
+    <form id="searchContainer" class="container" onsubmit="search(event)">
+        <h2 class="title">Search Game</h2>
+        <div class="formInput">
+            <label for="name">Name: </label>
+            <input type="search" name="name" id="nameInput">
+        </div>
+
+        <p>-- Advanced Search --</p>
+        <div class="formInput">
+            <label for="ID">Game ID: </label>
+            <input type="search" name="ID" id="IDInput" placeholder="Numbers only" pattern="\d*">
+        </div>
+
+        <div id="genreContainer" class="innerContainer">
+            <h2 class="title">Gender</h2>
+        </div>
+
+        <div id="categoryContainer" class="innerContainer">
+            <h2 class="title">Category</h2>
+        </div>
+
+        <input id="searchBtn" class="button" type="submit" value="Search">
+        <button id="reset" class="button" onclick="clearFilters()">Reset filters</button>
+    </form>
+
+    <!--Lista de games-->
+    <div id="resultContainer" class="container">
+        <h2 id="resultsTitle" class="title">Search Results</h2>
+        <div class="gameResult">
+            <span>Game_ID</span>
+            <span>Game_name</span>
+            <span>Price</span>
+            <div style="display: inline;" class="osIcons">
+                <img style="filter: invert(1)" src="svg/windows.svg" width="16" height="16" alt="Windows support">
+                <img style="filter: invert(1)" src="svg/linux.svg" width="16" height="16" alt="Linux support">
+                <img style="filter: invert(1)" src="svg/macOS.svg" width="16" height="16" alt="macOS support">
+            </div>
+        </div>
+        <div id="pagination">
+            <button id="prevPageBtn" class="button"disabled="disabled" onclick="updatePagination(-1)"><</button>
+            <button id="currentPageBtn" class="button">1</button>
+            <button id="nextPageBtn" class="button" onclick="updatePagination(1)">></button>
+            <br>
+            <select id="paginationLimit" onchange="paginationUpdated()">
+                <option value="25">25 games per result</option>
+                <option value="50">50 games per result</option>
+                <option value="100">100 games per result</option>
+            </select>
+        </div>
+    </div>
+
+    <script src="/javascript/common.js"></script>
+    <script src="/javascript/search.js"></script>
+</body>
+</html>

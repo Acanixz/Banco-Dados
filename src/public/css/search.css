@@ -1,0 +1,82 @@
+body {
+    flex-direction: row;
+}
+
+h1 {
+    position: absolute;
+    top: 0px;
+}
+
+#searchBtn {
+    display: inline;
+    margin-top: 25px;
+}
+
+#resultContainer {
+    overflow: auto;
+    width: 50%;
+    height: 450px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+#searchContainer {
+    overflow: auto;
+    width: 25%;
+    height: 450px;
+}
+
+#reset{
+    display: inline;
+}
+
+#pagination{
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#pagination > *.button{
+    display: inline;
+    margin: 5px;
+    padding: 5px 10px;
+}
+
+#pagination > *.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.gameResult{
+    width: 90%;
+    height: 50px;
+    background-color: rgb(22, 24, 31);
+    border-radius: 5px;
+    margin: 10px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.gameResult:hover{
+    background-color: #222e41;
+}
+
+.osIcons {
+    width: 78px;
+}
+
+.osIcons > * {
+    margin-right: 10px;
+}
+
+.resultGameName {
+    width: 300px;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
